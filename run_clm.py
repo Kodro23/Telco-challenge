@@ -201,17 +201,17 @@ def training_function(args):
     )
 
     trainer.train()
-
+    # save trained model
     sagemaker_save_dir="./opt/ml/model/"
     if args.merge_weigths:
         trainer.model.save_pretrained(output_dir, safe_serialization=False)
-
+        # Create memory by deleting model
         del model
         del trainer
         torch.cuda.empty_cache()
 
         from peft import AutoPeftModelForCasualLM
-
+        # reload model after deleting it
         model = AutoPeftModelForCasualLM(
             output_dir,
             low_cpu_mem_usage=True,
@@ -234,6 +234,13 @@ def training_function(args):
     tokenizer.save_pretrained(sagemaker_save_dir)
 
 
+def main():
+    args = parse_args()
+    training_function(args)
+
+if __name__ == "__main__":
+    main()
+    
 
 
 

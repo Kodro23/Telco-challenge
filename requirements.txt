@@ -4,4 +4,6 @@ accelerate==1.13.0
 torch==2.11.0
 dotenv==0.9.9
 transformers==5.5.4
-random
+peft>=0.4.0
+BitsAndBytes>=0.40.2
+safetensors>=0.3.1
