@@ -1,6 +1,6 @@
 pandas==3.0.2
 numpy==2.4.4
-accelerate
-torch==1.13.3
+accelerate==1.13.0
+torch==2.11.0
 dotenv==0.9.9
-transfromers==5.5.4
+transformers==5.5.4
