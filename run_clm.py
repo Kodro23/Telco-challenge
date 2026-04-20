@@ -181,8 +181,58 @@ def training_function(args):
     output_dir = "./tmp/qwen"
 
     training_args = TrainingArguments(
-
+        output_dir=output_dir,
+        per_device_train_batch_size=args.per_device_train_batch_size,
+        bf16=args.bf16,
+        learning_rate=args.lr,
+        num_train_epochs=args.epochs,
+        gradient_checkpointing=args.gradient_checkpointing,
+        logging_dir=f"{outpu_dir}/logs",
+        logging_stratey="steps",
+        logging_steps=10,
+        save_strategy="no"
     )
+
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=dataset,
+        data_collator=default_data_collator
+    )
+
+    trainer.train()
+
+    sagemaker_save_dir="./opt/ml/model/"
+    if args.merge_weigths:
+        trainer.model.save_pretrained(output_dir, safe_serialization=False)
+
+        del model
+        del trainer
+        torch.cuda.empty_cache()
+
+        from peft import AutoPeftModelForCasualLM
+
+        model = AutoPeftModelForCasualLM(
+            output_dir,
+            low_cpu_mem_usage=True,
+            torch_dtype=torch.float16
+        )
+
+        model = model.merge_and_unload()
+        model.save_pretrained(
+            sagemaker_save_dir,
+            safe_serilization=True,
+            max_shard_size="2GB"
+        )
+
+    else:
+        trainer.model.save_pretrained(
+            sagemaker_save_dir,
+            safe_serilization=True,
+        )
+    tokenizer = AutoTokenizer.from_pretrained(args.model_id)
+    tokenizer.save_pretrained(sagemaker_save_dir)
+
 
 
 
