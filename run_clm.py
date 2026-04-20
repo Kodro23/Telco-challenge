@@ -30,7 +30,6 @@ def parse_arge():
     parser.add_argument(
         "--hf_token", type=str, default="<ADD_YOUR_HF_TOKEN>", help="add any help statement if you want(optional parameter)"
     )
-  
     parser.add_argument(
         "--epochs", type=int, default=3, help="add any help statement if you want(optional parameter)"
     )
@@ -67,11 +66,10 @@ def parse_arge():
     args, _ = parser.parse_known_args()
 
     if args.hf_token:
-       print("logging into hf hub with token")
-       login(token=args.hf_token)
+        print("logging into hf hub with token")
+        login(token=args.hf_token)
 
     return args
-
 
 
 def print_trainable_parameters(model, use_4bit=False):
@@ -90,6 +88,104 @@ def print_trainable_parameters(model, use_4bit=False):
     print(
         f"all params: {all_param:,d} || trainable params: {trainable_params:,d} || trainable%: {100 * trainable_params / all_param}"
     )
+
+
+def find_all_linear_names(model):
+    """
+    returns a list of modules that can be trained with lora
+    """
+    lora_module_names = set()
+    for name, module in model.named_modules():
+        # if a model has a nn.linear4bit, it can and will be a LoRa layer
+        if isinstance(module, bnb.nn.Linear4bit): #we load the weigths in 4 bit to save space
+            names = name.split(".")
+            lora_module_names.add(names[0] if len(names)==1 else names[-1])
+    if "lm_head" in lora_module_names:
+        lora_module_names.remove("lm_head")
+    return list(lora_module_names)
+
+
+def create_peft_model(model, gradient_checkpointing=True, bf16=True):
+    """
+    peft=> parameter efficient fine tuning
+    To optimize the model: inject LoRa adopters into quantized model, 
+                           enable gradient checking,
+                           adjust data types where needed
+    """
+    from peft import (
+        get_peft_model,
+        LoraConfig,
+        TaskType,
+        prepare_model_for_kbit_training
+    )
+
+    from peft.tuners.lora import LoraLayer
+
+    model = prepare_model_for_kbit_training(
+        model, gradient_checkpointing=gradient_checkpointing
+    )
+    if gradient_checkpointing:
+        model.gradient_checkpointing_enable()
+
+    # which layers to inject LoRa into
+    modules = find_all_linear_names(model)
+    print(f"Found {len(modules)} modules to quantize: {modules} ")
+    peft_config = LoraConfig(
+        r=64,
+        lora_alpha=16,
+        target_modules=modules,
+        lora_dropout=0.1,
+        bias="none",
+        task_type=TaskType.CASUAL_LM
+    )
+    model = get_peft_model(model, peft_config)
+
+    for name, module in model.named_modules():
+        if isinstance(module, LoraLayer):
+            if bf16:
+                module = module.to(torch.bfloat16)
+        if "norm" in name:
+            module.to(torch.float32)
+        if "lm_head" in name or "embed_tokens" in name:
+            if hasattr(module, "weight"):
+                if bf16 and module.weight.dtype == torch.float32:
+                    module.to(torch.bfloat16)
+
+    module.print_trainable_parameter()
+
+    return model
+
+
+def training_function(args):
+    set_seed(args.seed)
+    dataset = load_from_disk(args.dataset_path)
+
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,  # apply double quantization to compress weights even more
+        bnb_4bit_quant_type="nf4",  # normal float four to improve quantization accuracy for weigths following a Gaussian distribution
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
+    model = AutoModelForCasualLM.from_pretrained(
+        args.model_id,
+        use_cache=False if args.gradient_checkpointing else True,
+        device_map='auto',
+        quantization_config=bnb_config
+    )
+    model = creat_peft_model(
+        model, 
+        gradient_checkpointing=args.gradient_checkpointing,
+        bf16=args.bf16
+    )
+
+    output_dir = "./tmp/qwen"
+
+    training_args = TrainingArguments(
+
+    )
+
+
+
 
 
 
