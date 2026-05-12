@@ -6,7 +6,8 @@ seaborn==0.13.2
 #Modelling LSTM
 scikit_learn==1.8.0
 tensorflow==2.21.0
-
+keras_tuner==1.4.8
+tensorboard==2.20.0
 #Modelling LLM
 # accelerate==1.13.0
 # torch==2.11.0
