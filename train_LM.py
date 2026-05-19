@@ -133,4 +133,6 @@ tuner.search(
 best_model = tuner.get_best_models(num_models=1)[0]
 
 #Save model
-best_model.save("/home/onyxia/work/Telco-challenge/model/telecom_model_ml.keras")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
+best_model.save(MODEL_PATH)

@@ -51,8 +51,6 @@ class MacroF1(tf.keras.metrics.Metric):
 def build_model(hp):
 
     model = Sequential()
-
-    # ✅ Always start with Input layer (IMPORTANT for Keras Tuner stability)
     model.add(Input(shape=(None, 25)))
 
     # LSTM layer

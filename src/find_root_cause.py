@@ -1,10 +1,10 @@
 import tensorflow as tf
 import numpy as np
 from pathlib import Path
+from src.preprocessing import Preprocessor
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
-
 #Load model
 class TelecomInference:
     def __init__(self):
@@ -18,10 +18,25 @@ class TelecomInference:
         preds = self.model.predict(X)
         return preds
 
-# model = TelecomInference()
+class TelecomPipeline:
+    def __init__(self):
+        self.model = TelecomInference()
+        self.preprocessor = Preprocessor()
 
-# #Predict
-# file_path = sys.argv[1]
-# X = np.load(file_path)
-# preds = model.predict(X)
-# print(preds.argmax(axis=1))
+    def predict(self, text: str):
+
+        preprocessed = self.preprocessor.build_sequence(text)
+        X = preprocessed.to_numpy()
+
+        if X.shape[1] != 25:
+            raise ValueError(f"Expected 25 features, got {X.shape[1]}")
+
+        X = np.expand_dims(X, axis=0)
+
+        preds = self.model.predict(X)
+
+        return {
+            "prediction_class": int(np.argmax(preds)),
+            "probabilities": preds.tolist()
+        }
+

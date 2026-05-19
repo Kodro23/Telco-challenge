@@ -11,7 +11,7 @@ model = None
 
 
 # -----------------------
-# Load model once
+# Load model 
 # -----------------------
 @app.on_event("startup")
 def load_model():
@@ -19,9 +19,6 @@ def load_model():
     model = TelecomInference()
 
 
-# -----------------------
-# Input = RAW TEXT (IMPORTANT CHANGE)
-# -----------------------
 class InputData(BaseModel):
     text: str
 
@@ -41,32 +38,24 @@ def health():
 def predict(input: InputData):
 
     try:
-        # 1. PREPROCESS TEXT → DATAFRAME / FEATURES
+       
         preprocessor = Preprocessor(question=input.text)
-
         merged_df = preprocessor.build_sequence()
-
-        # 2. Convert to model input
-        # IMPORTANT: your model expects (batch, 10, 25)
         X = merged_df.to_numpy()
-
-        # if your model expects fixed window:
-        if X.shape[0] < 10:
+        # Validity check
+        if X.shape[1] != 25:
             raise HTTPException(
                 status_code=400,
-                detail=f"Not enough timesteps. Got {X.shape[0]}, expected >= 10"
+                detail=f"Expected 25 features, got {X.shape[1]}"
             )
 
-        # take last 10 timesteps (common in time-series inference)
-        X = X[-10:, :25]
+        #Reshape for model
+        X = np.expand_dims(X, axis=0)  # (1, T, 25)
 
-        # reshape to (1, 10, 25)
-        X = np.expand_dims(X, axis=0)
-
-        # 3. Predict
+        #Predict
         preds = model.predict(X)
 
-        # 4. Output
+        #Output
         return {
             "prediction_class": int(np.argmax(preds)),
             "probabilities": preds.tolist()
