@@ -33,7 +33,7 @@ def build_model(hp):
     # Dropout (kept optional but stable)
     model.add(
         Dropout(
-            rate=hp.Choice("dropout", [0.0,0.1, 0.2,0.3,0.4 0.5])
+            rate=hp.Choice("dropout", [0.0,0.1, 0.2,0.3,0.4, 0.5])
         )
     )
 
@@ -59,9 +59,9 @@ def build_model(hp):
 
     return model
 
-#Weigted model
+# Weigted model
 
-#Define F1 score function
+# Define F1 score function
 class MacroF1(tf.keras.metrics.Metric):
     def __init__(self, num_classes=8, name="f1", **kwargs):
         super().__init__(name=name, **kwargs)
@@ -102,7 +102,7 @@ class MacroF1(tf.keras.metrics.Metric):
     def reset_state(self):
         self.conf_matrix.assign(tf.zeros_like(self.conf_matrix))
 
-#Model
+# Model
 def build_model_f1(hp):
 
     model = Sequential()
