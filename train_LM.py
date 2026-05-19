@@ -131,3 +131,6 @@ tuner.search(
     class_weight= class_weights
 )
 best_model = tuner.get_best_models(num_models=1)[0]
+
+#Save model
+best_model.save("/home/onyxia/work/Telco-challenge/model/telecom_model_ml.keras")
