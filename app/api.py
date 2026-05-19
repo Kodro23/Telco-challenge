@@ -1,26 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import numpy as np
-
-from src.find_root_cause import TelecomInference
-from src.preprocessing import Preprocessor   
+from src.find_root_cause import TelecomPipeline
 
 app = FastAPI()
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = PROJECT_ROOT /"Telco-challenge"/ "models" / "telecom_model_ml.keras"
+pipeline = TelecomPipeline(model_path=str(MODEL_PATH))
 
-model = None
-
-
-# -----------------------
-# Load model 
-# -----------------------
-@app.on_event("startup")
-def load_model():
-    global model
-    model = TelecomInference()
-
-
-class InputData(BaseModel):
-    text: str
 
 
 # -----------------------
@@ -30,36 +16,14 @@ class InputData(BaseModel):
 def health():
     return {"status": "ok"}
 
-
 # -----------------------
 # Predict endpoint
 # -----------------------
+class InputData(BaseModel):
+    text: str
 @app.post("/predict")
 def predict(input: InputData):
-
     try:
-       
-        preprocessor = Preprocessor(question=input.text)
-        merged_df = preprocessor.build_sequence()
-        X = merged_df.to_numpy()
-        # Validity check
-        if X.shape[1] != 25:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Expected 25 features, got {X.shape[1]}"
-            )
-
-        #Reshape for model
-        X = np.expand_dims(X, axis=0)  # (1, T, 25)
-
-        #Predict
-        preds = model.predict(X)
-
-        #Output
-        return {
-            "prediction_class": int(np.argmax(preds)),
-            "probabilities": preds.tolist()
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return pipeline.predict(input.text)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

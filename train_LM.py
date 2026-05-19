@@ -11,6 +11,10 @@ from sklearn.utils.class_weight import compute_class_weight
 import keras_tuner as kt
 from src.LM_model_building import build_model
 from src.data_process import Preprocessor
+from pathlib import Path
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
  
 ##################################################################################################################################################################
 #Let's preprocess data
@@ -134,5 +138,5 @@ best_model = tuner.get_best_models(num_models=1)[0]
 
 #Save model
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
-best_model.save(MODEL_PATH)
+MODEL_PATH = PROJECT_ROOT /"Telco-challenge"/ "models" / "telecom_model_ml.keras"
+best_model.save(MODEL_PATH) 
