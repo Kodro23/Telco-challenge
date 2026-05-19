@@ -1,25 +1,33 @@
-#Data processing
-pandas==3.0.2
-numpy==2.4.4
-seaborn==0.13.2
-
-#Modelling LSTM
-scikit_learn==1.8.0
+# ======================
+# CORE ML STACK
+# ======================
 tensorflow==2.21.0
-keras_tuner==1.4.8
-tensorboard==2.20.0
+numpy==2.4.4
+pandas==3.0.2
+scikit-learn==1.8.0
+scipy==1.17.1
 
-#API
-fastapi
-uvicorn
+# ======================
+# MODEL UTILITIES
+# ======================
+keras-tuner==1.4.8
+h5py==3.14.0
 
+# ======================
+# API (DEPLOYMENT)
+# ======================
+fastapi==0.136.1
+uvicorn==0.47.0
+pydantic==2.13.4
+requests==2.33.1
 
-# Modelling LLM
-# accelerate==1.13.0
-# torch==2.11.0
-# dotenv==0.9.9
-# transformers==5.5.4
-# peft>=0.4.0
-# BitsAndBytes>=0.40.2
-# safetensors>=0.3.1
-# datasets==4.8.4
+# ======================
+# LOGGING / CONFIG
+# ======================
+python-dotenv==1.2.2
+
+# ======================
+# OPTIONAL (DEV ONLY - REMOVE IN PROD IF YOU WANT)
+# ======================
+matplotlib==3.10.9
+seaborn==0.13.2

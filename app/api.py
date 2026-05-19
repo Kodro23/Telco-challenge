@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,  HTTPException
 from pydantic import BaseModel
 import numpy as np
 
 from src.find_root_cause import TelecomInference
 
-app = FastAPI()
+app = FastAPI(
+    root_path="/proxy/8000"
+)
 
 model = None  # global placeholder
 
@@ -18,14 +20,24 @@ def load_model():
 
 # ---- Input schema ----
 class InputData(BaseModel):
-    data: list
+    data: list[list[list[float]]]
 
 
 # ---- API route ----
 @app.post("/predict")
+from fastapi import HTTPException
+import numpy as np
+
+@app.post("/predict")
 def predict(input: InputData):
 
-    X = np.array(input.data).reshape(1, 10, 25)
+    X = np.array(input.data)
+
+    if X.shape[1:] != (10, 25):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Expected shape (batch, 10, 25), got {X.shape}"
+        )
 
     preds = model.predict(X)
 
@@ -34,7 +46,7 @@ def predict(input: InputData):
         "probabilities": preds.tolist()
     }
 
-
+    
 # ---- Health check (IMPORTANT for debugging) ----
 @app.get("/")
 def health():
