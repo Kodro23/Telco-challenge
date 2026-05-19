@@ -11,55 +11,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import GridSearchCV, train_test_split,cross_val_score, KFold
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import make_scorer ,confusion_matrix,classification_report
 import keras_tuner as kt
 
-#Naive model
-def build_model(hp):
-
-    model = Sequential()
-
-    # ✅ Always start with Input layer (IMPORTANT for Keras Tuner stability)
-    model.add(Input(shape=(10, 25)))
-
-    # LSTM layer
-    model.add(
-        LSTM(
-            units=hp.Choice("lstm_units", [64, 128,256]),
-            return_sequences=False
-        )
-    )
-
-    # Dropout (kept optional but stable)
-    model.add(
-        Dropout(
-            rate=hp.Choice("dropout", [0.0,0.1, 0.2,0.3,0.4, 0.5])
-        )
-    )
-
-    # Dense layer
-    model.add(
-        Dense(
-            units=hp.Choice("dense_units", [32, 64,128]),
-            activation="relu"
-        )
-    )
-
-    # Output layer
-    model.add(Dense(8, activation="softmax"))
-
-    # Learning rate tuning
-    lr = hp.Choice("lr", [1e-3, 1e-4])
-
-    model.compile(
-        optimizer=Adam(learning_rate=lr),
-        loss="categorical_crossentropy",
-        metrics=["accuracy",]
-    )
-
-    return model
-
-# Weigted model
 
 # Define F1 score function
 class MacroF1(tf.keras.metrics.Metric):
@@ -103,7 +58,7 @@ class MacroF1(tf.keras.metrics.Metric):
         self.conf_matrix.assign(tf.zeros_like(self.conf_matrix))
 
 # Model
-def build_model_f1(hp):
+def build_model(hp):
 
     model = Sequential()
 
