@@ -92,7 +92,7 @@ labels = [
 # Padding
 X = pad_sequences(sequences).astype("float32")
 #one hot encoding
-y = to_categorical(labels, num_classes=8)
+y = tf.keras.utils.to_categorical(labels, num_classes=8)
 #Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train = X_train.astype("float32")

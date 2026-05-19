@@ -1,7 +1,8 @@
 #import libraries
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, Dropout,Input
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
+from tensorflow.keras.optimizers import Adam
 
 
 
@@ -52,7 +53,7 @@ def build_model(hp):
     model = Sequential()
 
     # ✅ Always start with Input layer (IMPORTANT for Keras Tuner stability)
-    model.add(Input(shape=(10, 25)))
+    model.add(Input(shape=(None, 25)))
 
     # LSTM layer
     model.add(
