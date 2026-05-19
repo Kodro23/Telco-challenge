@@ -1,19 +1,8 @@
 #import libraries
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout,Input,Bidirectional
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
-from sklearn.model_selection import GridSearchCV, train_test_split,cross_val_score, KFold
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.utils.class_weight import compute_class_weight
-from sklearn.metrics import make_scorer ,confusion_matrix,classification_report
-import keras_tuner as kt
+from tensorflow.keras.layers import LSTM, Dense, Dropout,Input
+
 
 
 # Define F1 score function

@@ -1,5 +1,56 @@
-import src.LM_model_building
-import src.data_process
+#import libraries
+#Handle data
+import pandas as pd
+import numpy as np
+from io import StringIO
+#Model
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout,Input,Bidirectional
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import GridSearchCV, train_test_split,cross_val_score, KFold
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.utils.class_weight import compute_class_weight
+from sklearn.metrics import make_scorer ,confusion_matrix,classification_report
+import keras_tuner as kt
+from src.LM_model_building import MacroF1, build_model
+from src.data_process import Preprocessor
+ 
+##################################################################################################################################################################
+#Let's preprocess data
+df = pd.read_csv("./data/raw/train.csv")
+processed_rows = []
+for idx, row in df.iterrows():
+    try:
+        processor = Preprocessor(row["question"])
+        merged = processor.build_sequence()
+        merged["ID"] = row["ID"]
+        # store tabular version
+        processed_rows.append(merged)
+    except Exception as e:
+        print(f"Error on row {idx}: {e}")
+
+# build final dataframe ONCE (important)
+processed_dataframe = pd.concat(processed_rows, ignore_index=True)
+#Rename columns
+processed_dataframe=processed_dataframe.rename({"Longitude_x": "Longitude", "Latitude_x":"Latitude", "Longitude_y": "cell_Longitude","Latitude_y": "cell_Latitude"},axis="columns")
+#Sort dataframe
+processed_dataframe=processed_dataframe.drop(columns=["Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
+"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 PCI", 
+"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 PCI",
+"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 Filtered Tx BRSRP [dBm]",    
+"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 Filtered Tx BRSRP [dBm]",    
+"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"]).sort_values(by=["ID","Timestamp"])
+#Replace missing values by the previous or following value
+ids = processed_dataframe["ID"]
+processed_dataframe = processed_dataframe.groupby("ID").ffill().bfill()
+processed_dataframe["ID"] = ids
 
 #Format data
 processed_data = []
@@ -61,7 +112,19 @@ X_test = X_test.astype("float32")
 val_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 val_ds = val_ds.batch(32).prefetch(tf.data.AUTOTUNE)
 
-a
+##################################################################################################################################################################
+#Let's add weights
+y_train_labels = np.argmax(y_train, axis=-1).flatten()
+classes = np.unique(y_train_labels)
+
+class_weights = compute_class_weight(
+    class_weight="balanced",
+    classes=classes,
+    y=y_train_labels
+)
+
+class_weights = dict(zip(classes, class_weights))
+
 #Training
 tuner = kt.RandomSearch(
     build_model,
