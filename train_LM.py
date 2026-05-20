@@ -18,6 +18,18 @@ import json
 
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+categorical_encoders = {}
+def encode_column(df, col):
+    if col not in categorical_encoders:
+        le = LabelEncoder()
+        df[col] = df[col].astype(str)
+        categorical_encoders[col] = le.fit(df[col])
+    else:
+        le = categorical_encoders[col]
+        df[col] = le.transform(df[col])
+
+    return df
  
 ##################################################################################################################################################################
 #Let's preprocess data
@@ -53,15 +65,13 @@ processed_dataframe["ID"] = ids
 processed_data = []
 for telelog_id in processed_dataframe["ID"].unique():
     # get rows for ONE telelog
-    sample_df = processed_dataframe[
-        processed_dataframe["ID"] == telelog_id
-    ].copy()
+    sample_df = processed_dataframe[processed_dataframe["ID"] == telelog_id].copy()
 
     # sort by time
     sample_df = sample_df.sort_values("Timestamp").drop(columns=["Timestamp"])
+    #encoding 
     for col in sample_df.columns[sample_df.columns.isin(sample_df.select_dtypes(include=["object", "string"]).columns)]:
-        le = LabelEncoder()
-        sample_df[col] = le.fit_transform(sample_df[col])
+        sample_df = encode_column(sample_df, col)
 
     # sequence = matrix
     sequence = sample_df.values
@@ -75,15 +85,7 @@ for telelog_id in processed_dataframe["ID"].unique():
         "label": label
     })
 
-label_map = {
-    "C1":0,
-    "C2":1,
-    "C3":2,
-    "C4":3,
-    "C5":4,
-    "C6":5,
-    "C7":6,
-    "C8":7}
+label_map = {f"C{i}": i-1 for i in range(1, 9)}
 for sample in processed_data:
     sample["label_id"] = label_map[sample["label"]]
 
@@ -138,8 +140,17 @@ tuner.search(
     class_weight= class_weights
 )
 best_model = tuner.get_best_models(num_models=1)[0]
-
-#Save model
+##################################################################################################################################################
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = PROJECT_ROOT /"Telco-challenge"/ "models" / "telecom_model_ml.keras"
-best_model.save(MODEL_PATH) 
+MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
+ENCODERS_PATH = PROJECT_ROOT / "models" / "encoders.pkl"
+FEATURES_PATH = PROJECT_ROOT / "models" / "feature_cols.json"
+
+#save model
+best_model.save(MODEL_PATH)
+#save parameters
+joblib.dump(categorical_encoders, ENCODERS_PATH)
+
+feature_cols = list(processed_dataframe.columns)
+with open(FEATURES_PATH, "w") as f:
+    json.dump(feature_cols, f)
