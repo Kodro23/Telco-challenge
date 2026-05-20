@@ -1,7 +1,10 @@
 #Import libraries
 import pandas as pd
 import numpy as np
+import re
 from io import StringIO
+from sklearn.preprocessing import LabelEncoder
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
 #Define preprocessing class
@@ -19,10 +22,10 @@ class Preprocessor():
         """
 
         # Split sections
-        parts = self.question.split(
-            "Engeneering parameters data as follows："
-        )
-
+        parts = re.split(
+            r"Engineering parameters data as follows[:：]",
+            self.question
+            )
         drive_part = parts[0]
         eng_part = parts[1]
 
@@ -82,10 +85,13 @@ class Preprocessor():
          # replace "-" with NaN
         eng_df = eng_df.replace("-", np.nan)
         for col in ["Cell ID", "Longitude", "Latitude", "Mechanical Azimuth", "Mechanical Downtilt", "Digital Tilt", "Digital Azimuth", "Height", "PCI", "Max Transmit Power"]:
-            eng_df[col] = pd.to_numeric(
-                eng_df[col],
-                errors="coerce"
-            )
+            try:
+                eng_df[col] = pd.to_numeric(
+                    eng_df[col],
+                    errors="coerce"
+                )
+            except:
+                pass
         return drive_df, eng_df
 
     def merge_features(self, drive_df, eng_df):
@@ -116,9 +122,46 @@ class Preprocessor():
         )
         merged.columns = merged.columns.str.strip()
        
-
         # convert numeric
         merged["Timestamp"] = pd.to_datetime(merged["Timestamp"])
+        # clean merged content
+        print(merged.iloc[0])
 
         return merged
 
+class FeatureBuilder:
+    def __init__(self, merged_df):
+        self.df = merged_df
+
+    def build(self):
+
+        df = self.df.copy()
+
+        # fix duplicates
+        df = df.rename(columns={
+            "Longitude_x": "Longitude",
+            "Latitude_x": "Latitude",
+            "Longitude_y": "cell_Longitude",
+            "Latitude_y": "cell_Latitude"
+        })
+
+        # sort FIRST
+        df = df.sort_values("Timestamp")
+
+        # drop useless columns
+        df = df.drop(columns=["Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 PCI", 
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 PCI",
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 Filtered Tx BRSRP [dBm]",    
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 Filtered Tx BRSRP [dBm]",    
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"], errors=ignore)
+
+        # handle missing values
+        df = df.ffill().bfill()
+
+        # IMPORTANT: no LabelEncoder here
+
+        return df.values.astype("float32")
+
+        
+    
