@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from src.find_root_cause import TelecomPipeline
 from pathlib import Path
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 app = FastAPI()
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
