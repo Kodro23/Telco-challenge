@@ -23,7 +23,6 @@ df = pd.read_csv("./data/raw/train.csv")
 processed_rows = []
 for idx, row in df.iterrows():
     try:
-        print(type(row["question"]))
         processor = Preprocessor(row["question"])
         merged = processor.build_sequence()
         merged["ID"] = row["ID"]
@@ -39,7 +38,7 @@ processed_dataframe = pd.concat(processed_rows, ignore_index=True)
 categorical_encoders = {}
 categorical_cols = [col for col in processed_dataframe.select_dtypes(include=["object", "string"]).columns if col not in ["ID", "answer", "Timestamp"]]
 for col in categorical_cols:
-    df[col] = encode_column(df, col, encoders=categorical_encoders, training=True)
+    processed_dataframe[col] = encode_column(processed_dataframe, col, encoders=categorical_encoders, training=True)
 
 # Format data
 processed_data = []
@@ -47,7 +46,7 @@ for telelog_id in processed_dataframe["ID"].unique():
     # get rows for ONE telelog
     sample_df = processed_dataframe[processed_dataframe["ID"] == telelog_id].copy()
     # sequence = matrix
-    sequence = sample_df.values
+    sequence = sample_df.drop(columns=["ID", "answer"], errors="ignore").values
     # get label
     label = df[df["ID"] == telelog_id]["answer"].iloc[0]
     processed_data.append({

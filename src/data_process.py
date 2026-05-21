@@ -128,7 +128,6 @@ def encode_column(df, col, encoders=None, training=False):
     """
     Label encode if encoders not already fixed
     """
-    df[col] = df[col].astype(str)
     if training:
         le = LabelEncoder()
         df[col] = le.fit_transform(df[col])
