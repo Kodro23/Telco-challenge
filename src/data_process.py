@@ -171,8 +171,7 @@ class FeatureBuilder:
         df = df.ffill().bfill()
 
         # encode categorical variables
-        categorical_cols = df.select_dtypes(
-            include=["object"]).columns
+        categorical_cols = df.select_dtypes(include=["object"]).columns
         for col in categorical_cols:
             df = self.encode_column(df, col)
 

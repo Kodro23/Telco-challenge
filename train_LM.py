@@ -32,7 +32,7 @@ for idx, row in df.iterrows():
         builder=FeatureBuilder(merged)
 
         # store tabular version
-        processed_rows.append(merged)
+        processed_rows.append(builder.build())
     except Exception as e:
         print(f"Error on row {idx}: {e}")
 
