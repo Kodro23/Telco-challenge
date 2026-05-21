@@ -136,7 +136,7 @@ def encode_column(df, col, encoders=None, training=False):
     else:
         le = encoders[col]
         df[col] = le.transform(df[col])
-    return df
+    return df[col]
 
 
 class FeatureBuilder:
