@@ -1,10 +1,11 @@
 import tensorflow as tf
 import numpy as np
 from pathlib import Path
-from src.data_process import Preprocessor,FeatureBuilder
+from src.data_process import Preprocessor, FeatureBuilder
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
+
 
 class TelecomPipeline:
     def __init__(self, model_path: str, question: str):
@@ -14,8 +15,7 @@ class TelecomPipeline:
 
     def predict(self: str):
         df = self.preprocessor.build_sequence()
-        features = FeatureBuilder(df).build().values.astype(float32)
-        
+        features = FeatureBuilder(df).build().values.astype(np.float32)
         if features.shape[1] != 25:
             raise ValueError(f"Feature mismatch: number of columns={features.shape[1]} where it should be 25")
 

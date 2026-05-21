@@ -1,8 +1,8 @@
-#import libraries
-#Handle data
+# import libraries
+# Handle data
 import pandas as pd
 import numpy as np
-#Model
+# Model
 import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
@@ -17,12 +17,11 @@ import json
 
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
- 
 ##################################################################################################################################################################
-#Let's preprocess data
+# Let's preprocess data
 df = pd.read_csv("./data/raw/train.csv")
 
-#Label encoding
+# Label encoding
 categorical_encoders = {}
 categorical_cols = df.select_dtypes(include=["object", "string"]).columns
 for col in categorical_cols:
@@ -44,7 +43,7 @@ for idx, row in df.iterrows():
 # build final dataframe
 processed_dataframe = pd.concat(processed_rows, ignore_index=True)
 
-#Format data
+# Format data
 processed_data = []
 for telelog_id in processed_dataframe["ID"].unique():
     # get rows for ONE telelog
@@ -74,9 +73,9 @@ labels = [
 
 # Padding
 X = pad_sequences(sequences).astype("float32")
-#one hot encoding
+# one hot encoding
 y = tf.keras.utils.to_categorical(labels, num_classes=8)
-#Train-test split
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 X_train = X_train.astype("float32")
 train_ds = tf.data.Dataset.from_tensor_slices((X_train, y_train))
@@ -86,7 +85,7 @@ val_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 val_ds = val_ds.batch(32).prefetch(tf.data.AUTOTUNE)
 
 ##################################################################################################################################################################
-#Let's add weights
+# Let's add weights
 y_train_labels = np.argmax(y_train, axis=-1).flatten()
 classes = np.unique(y_train_labels)
 
@@ -98,10 +97,10 @@ class_weights = compute_class_weight(
 
 class_weights = dict(zip(classes, class_weights))
 
-#Training
+# Training
 tuner = kt.RandomSearch(
     build_model,
-    objective = kt.Objective("val_f1", direction="max"),
+    objective=kt.Objective("val_f1", direction="max"),
     max_trials=10,
     directory="tuning",
     project_name="telecom_lstm",
@@ -111,7 +110,7 @@ tuner.search(
     train_ds,
     validation_data=val_ds,
     epochs=50,
-    class_weight= class_weights
+    class_weight=class_weights
 )
 best_model = tuner.get_best_models(num_models=1)[0]
 ##################################################################################################################################################
@@ -120,9 +119,9 @@ MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
 ENCODERS_PATH = PROJECT_ROOT / "models" / "encoders.pkl"
 FEATURES_PATH = PROJECT_ROOT / "models" / "feature_cols.json"
 
-#save model
+# save model
 best_model.save(MODEL_PATH)
-#save parameters
+# save parameters
 joblib.dump(categorical_encoders, ENCODERS_PATH)
 
 feature_cols = list(processed_dataframe.columns)

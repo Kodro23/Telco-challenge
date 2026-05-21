@@ -1,4 +1,4 @@
-#Import libraries
+# Import libraries
 import pandas as pd
 import numpy as np
 import re
@@ -6,7 +6,7 @@ from io import StringIO
 from sklearn.preprocessing import LabelEncoder
 
 
-#Define preprocessing class
+# Define preprocessing class
 class Preprocessor():
 
     def __init__(self, question):
@@ -87,7 +87,8 @@ class Preprocessor():
                     eng_df[col],
                     errors="coerce"
                 )
-            except:
+            except Exception as e:
+                print(e)
                 pass
         return drive_df, eng_df
 
@@ -117,11 +118,11 @@ class Preprocessor():
             drive_df,
             eng_df
         )
-        merged.columns = merged.columns.str.strip()
-       
+        merged.columns = merged.columns.str.strip()       
         # convert numeric
         merged["Timestamp"] = pd.to_datetime(merged["Timestamp"])
         return merged
+
 
 def encode_column(df, col, encoders=None, training=False):
     """
@@ -137,9 +138,11 @@ def encode_column(df, col, encoders=None, training=False):
         df[col] = le.transform(df[col])
     return df
 
+
 class FeatureBuilder:
     def __init__(self, merged_df, encoders=None, training=False):
         self.df = merged_df
+
     def build(self):
 
         df = self.df.copy()
@@ -156,7 +159,7 @@ class FeatureBuilder:
         df = df.sort_values("Timestamp")
 
         # drop useless columns
-        df = df.drop(columns=["Timestamp","Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
+        df = df.drop(columns=["Timestamp", "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 PCI", 
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 PCI",
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 Filtered Tx BRSRP [dBm]",    
@@ -169,6 +172,3 @@ class FeatureBuilder:
         df["ID"] = ids
         df = df.ffill().bfill()
         return df
-
-        
-    
