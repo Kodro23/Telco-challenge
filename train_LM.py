@@ -111,10 +111,10 @@ tuner.search(
 )
 best_model = tuner.get_best_models(num_models=1)[0]
 ####################################################################################################
-PROJECT_ROOT = Path(__file__).resolve().parents[1]/"Telco-challenge"
-MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
-ENCODERS_PATH = PROJECT_ROOT / "models" / "encoders.pkl"
-FEATURES_PATH = PROJECT_ROOT / "models" / "feature_cols.json"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MODEL_PATH = PROJECT_ROOT / "Telco-challenge" / "models" / "telecom_model_ml.keras"
+ENCODERS_PATH = PROJECT_ROOT / "Telco-challenge" / "models" / "encoders.pkl"
+FEATURES_PATH = PROJECT_ROOT / "Telco-challenge" / "models" / "feature_cols.json"
 
 # save model
 best_model.save(MODEL_PATH)
