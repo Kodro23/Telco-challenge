@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils.class_weight import compute_class_weight
 import keras_tuner as kt
 from src.LM_model_building import build_model
-from src.data_process import Preprocessor,FeatureBuilder
+from src.data_process import Preprocessor, FeatureBuilder, encode_column
 
 from pathlib import Path
 import joblib
@@ -17,19 +17,24 @@ import json
 
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-categorical_encoders = {}
  
 ##################################################################################################################################################################
 #Let's preprocess data
 df = pd.read_csv("./data/raw/train.csv")
+
+#Label encoding
+categorical_encoders = {}
+categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+for col in categorical_cols:
+    df[col] = encode_column(df, col, encoders=categorical_encoders, training=True)
+
 processed_rows = []
 for idx, row in df.iterrows():
     try:
         processor = Preprocessor(row["question"])
         merged = processor.build_sequence()
         merged["ID"] = row["ID"]
-        builder=FeatureBuilder(merged)
+        builder = FeatureBuilder(merged)
 
         # store tabular version
         processed_rows.append(builder.build())

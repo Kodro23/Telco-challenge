@@ -14,7 +14,7 @@ class TelecomPipeline:
 
     def predict(self: str):
         df = self.preprocessor.build_sequence()
-        features = FeatureBuilder(df).build()
+        features = FeatureBuilder(df).build().values.astype(float32)
         
         if features.shape[1] != 25:
             raise ValueError(f"Feature mismatch: number of columns={features.shape[1]} where it should be 25")

@@ -123,24 +123,23 @@ class Preprocessor():
         merged["Timestamp"] = pd.to_datetime(merged["Timestamp"])
         return merged
 
+def encode_column(df, col, encoders=None, training=False):
+    """
+    Label encode if encoders not already fixed
+    """
+    df[col] = df[col].astype(str)
+    if training:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col])
+        encoders[col] = le
+    else:
+        le = encoders[col]
+        df[col] = le.transform(df[col])
+    return df
+
 class FeatureBuilder:
-    def __init__(self, merged_df,encoders=None, training=False):
+    def __init__(self, merged_df, encoders=None, training=False):
         self.df = merged_df
-        self.encoders = encoders or {}
-        self.training = training
-    def encode_column(self, df, col):
-        """
-        Label encode if encoders not already fixed
-        """
-        df[col] = df[col].astype(str)
-        if self.training:
-            le = LabelEncoder()
-            df[col] = le.fit_transform(df[col])
-            self.encoders[col] = le
-        else:
-            le = self.encoders[col]
-            df[col] = le.transform(df[col])
-        return df
     def build(self):
 
         df = self.df.copy()
@@ -169,12 +168,6 @@ class FeatureBuilder:
         df = df.groupby("ID").ffill().bfill()
         df["ID"] = ids
         df = df.ffill().bfill()
-        # encode categorical variables
-        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
-        df.columns = df.columns.str.strip()
-        for col in categorical_cols:
-            df = self.encode_column(df, col)
-
         return df
 
         
