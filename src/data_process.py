@@ -4,7 +4,6 @@ import numpy as np
 import re
 from io import StringIO
 from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 
 #Define preprocessing class
@@ -22,10 +21,10 @@ class Preprocessor():
         """
 
         # Split sections
-        parts = re.split(
-            r"Engineering parameters data as follows[:：]",
-            self.question
-            )
+        parts = self.question.split("Engineering parameters data as follows: ")
+        if len(parts) < 2:
+            raise ValueError("Engineering section not found")
+
         drive_part = parts[0]
         eng_part = parts[1]
 
@@ -34,7 +33,6 @@ class Preprocessor():
         # -------------------------
 
         drive_lines = []
-
         started = False
 
         for line in drive_part.split("\n"):
@@ -52,7 +50,7 @@ class Preprocessor():
             sep="|"
         )
         drive_df.columns = drive_df.columns.str.strip()
-         # replace "-" with NaN
+        # replace "-" with NaN
         drive_df = drive_df.replace("-", np.nan)
         for col in [c for c in drive_df.columns if c!="Timestamp"]:
             drive_df[col] = pd.to_numeric(
@@ -82,7 +80,7 @@ class Preprocessor():
             sep="|"
         )
         eng_df.columns = eng_df.columns.str.strip()
-         # replace "-" with NaN
+        # replace "-" with NaN
         eng_df = eng_df.replace("-", np.nan)
         for col in ["Cell ID", "Longitude", "Latitude", "Mechanical Azimuth", "Mechanical Downtilt", "Digital Tilt", "Digital Azimuth", "Height", "PCI", "Max Transmit Power"]:
             try:
@@ -127,9 +125,23 @@ class Preprocessor():
         return merged
 
 class FeatureBuilder:
-    def __init__(self, merged_df):
+    def __init__(self, merged_df,encoders=None, training=False):
         self.df = merged_df
-
+        self.encoders = encoders or {}
+        self.training = training
+    def encode_column(self, df, col):
+        """
+        Label encode if encoders not already fixed
+        """
+        df[col] = df[col].astype(str)
+        if self.training:
+            le = LabelEncoder()
+            df[col] = le.fit_transform(df[col])
+            self.encoders[col] = le
+        else:
+            le = self.encoders[col]
+            df[col] = le.transform(df[col])
+        return df
     def build(self):
 
         df = self.df.copy()
@@ -146,17 +158,21 @@ class FeatureBuilder:
         df = df.sort_values("Timestamp")
 
         # drop useless columns
-        df = df.drop(columns=["Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
+        df = df.drop(columns=["Timestamp","Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 PCI", 
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 PCI",
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 Filtered Tx BRSRP [dBm]",    
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 Filtered Tx BRSRP [dBm]",    
-                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"], errors=ignore)
+                                "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"])
 
         # handle missing values
         df = df.ffill().bfill()
 
-        # IMPORTANT: no LabelEncoder here
+        # encode categorical variables
+        categorical_cols = df.select_dtypes(
+            include=["object"]).columns
+        for col in categorical_cols:
+            df = self.encode_column(df, col)
 
         return df.values.astype("float32")
 

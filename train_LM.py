@@ -6,11 +6,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_class_weight
 import keras_tuner as kt
 from src.LM_model_building import build_model
-from src.data_process import Preprocessor
+from src.data_process import Preprocessor,FeatureBuilder
 
 from pathlib import Path
 import joblib
@@ -20,16 +19,6 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 categorical_encoders = {}
-def encode_column(df, col):
-    if col not in categorical_encoders:
-        le = LabelEncoder()
-        df[col] = df[col].astype(str)
-        categorical_encoders[col] = le.fit(df[col])
-    else:
-        le = categorical_encoders[col]
-        df[col] = le.transform(df[col])
-
-    return df
  
 ##################################################################################################################################################################
 #Let's preprocess data
@@ -39,9 +28,15 @@ for idx, row in df.iterrows():
     try:
         processor = Preprocessor(row["question"])
         merged = processor.build_sequence()
-        merged["ID"] = row["ID"]
+        builder = FeatureBuilder(
+            merged_df=merged,
+            encoders=categorical_encoders,
+            training=True
+        )
+        sequence=builder.build()
+
         # store tabular version
-        processed_rows.append(merged)
+        processed_rows.append({"ID": row["ID"],"sequence": sequence,"label": row["answer"]})
     except Exception as e:
         print(f"Error on row {idx}: {e}")
 
