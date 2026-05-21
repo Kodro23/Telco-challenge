@@ -169,9 +169,9 @@ class FeatureBuilder:
         df = df.groupby("ID").ffill().bfill()
         df["ID"] = ids
         df = df.ffill().bfill()
-
         # encode categorical variables
-        categorical_cols = df.select_dtypes(include=["object"]).columns
+        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+        df.columns = df.columns.str.strip()
         for col in categorical_cols:
             df = self.encode_column(df, col)
 
