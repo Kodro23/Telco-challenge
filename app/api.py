@@ -7,6 +7,7 @@ app = FastAPI()
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
 
+
 # -----------------------
 # Health check
 # -----------------------
@@ -14,11 +15,14 @@ MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
 def health():
     return {"status": "ok"}
 
+
 # -----------------------
 # Predict endpoint
 # -----------------------
 class InputData(BaseModel):
     text: str
+
+
 @app.post("/predict")
 def predict(input: InputData):
     try:
@@ -26,4 +30,3 @@ def predict(input: InputData):
         return pipeline.predict()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-

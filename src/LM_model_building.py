@@ -1,9 +1,8 @@
-#import libraries
+# import libraries
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
 from tensorflow.keras.optimizers import Adam
-
 
 
 # Define F1 score function
@@ -47,16 +46,17 @@ class MacroF1(tf.keras.metrics.Metric):
     def reset_state(self):
         self.conf_matrix.assign(tf.zeros_like(self.conf_matrix))
 
+
 # Model
 def build_model(hp):
 
     model = Sequential()
-    model.add(Input(shape=(None, 25)))
+    model.add(Input(shape=(None, 24)))
 
     # LSTM layer
     model.add(
         LSTM(
-            units=hp.Choice("lstm_units", [64, 128,256]),
+            units=hp.Choice("lstm_units", [64, 128, 256]),
             return_sequences=False
         )
     )
@@ -64,14 +64,14 @@ def build_model(hp):
     # Dropout (kept optional but stable)
     model.add(
         Dropout(
-            rate=hp.Choice("dropout", [0.0, 0.1, 0.2,0.3,0.4, 0.5])
+            rate=hp.Choice("dropout", [0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
         )
     )
 
     # Dense layer
     model.add(
         Dense(
-            units=hp.Choice("dense_units", [32, 64,128]),
+            units=hp.Choice("dense_units", [32, 64, 128]),
             activation="relu"
         )
     )
@@ -85,7 +85,7 @@ def build_model(hp):
     model.compile(
         optimizer=Adam(learning_rate=lr),
         loss="categorical_crossentropy",
-        metrics=["accuracy",MacroF1(num_classes=8, name="f1")]
+        metrics=["accuracy", MacroF1(num_classes=8, name="f1")]
     )
 
     return model

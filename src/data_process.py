@@ -20,7 +20,7 @@ class Preprocessor():
         - engineering dataframe
         """
         # Split sections
-        parts = re.split(r"\s*Eng[a-z]*\s+parameters\s+data\s+as\s+follows\s*:\s*",self.question,flags=re.IGNORECASE)
+        parts = re.split(r"\s*Eng[a-z]*\s+parameters\s+data\s+as\s+follows\s*:\s*", self.question, flags=re.IGNORECASE)
         if len(parts) < 2:
             raise ValueError("Engineering section not found")
 
@@ -51,7 +51,7 @@ class Preprocessor():
         drive_df.columns = drive_df.columns.str.strip()
         # replace "-" with NaN
         drive_df = drive_df.replace("-", np.nan)
-        for col in [c for c in drive_df.columns if c!="Timestamp"]:
+        for col in [c for c in drive_df.columns if c != "Timestamp"]:
             drive_df[col] = pd.to_numeric(
                 drive_df[col],
                 errors="coerce"
@@ -118,7 +118,7 @@ class Preprocessor():
             drive_df,
             eng_df
         )
-        merged.columns = merged.columns.str.strip()       
+        merged.columns = merged.columns.str.strip()
         # convert numeric
         merged["Timestamp"] = pd.to_datetime(merged["Timestamp"])
         return merged

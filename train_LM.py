@@ -17,7 +17,7 @@ import json
 
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-##################################################################################################################################################################
+####################################################################################################
 # Let's preprocess data
 df = pd.read_csv("./data/raw/train.csv")
 processed_rows = []
@@ -36,7 +36,8 @@ for idx, row in df.iterrows():
 processed_dataframe = pd.concat(processed_rows, ignore_index=True)
 # Label encoding
 categorical_encoders = {}
-categorical_cols = [col for col in processed_dataframe.select_dtypes(include=["object", "string"]).columns if col not in ["ID", "answer", "Timestamp"]]
+categorical_cols = [col for col in processed_dataframe.select_dtypes(
+    include=["object", "string"]).columns if col not in ["ID", "answer", "Timestamp"]]
 for col in categorical_cols:
     processed_dataframe[col] = encode_column(processed_dataframe, col, encoders=categorical_encoders, training=True)
 
@@ -81,8 +82,7 @@ X_test = X_test.astype("float32")
 val_ds = tf.data.Dataset.from_tensor_slices((X_test, y_test))
 val_ds = val_ds.batch(32).prefetch(tf.data.AUTOTUNE)
 
-##################################################################################################################################################################
-# Let's add weights
+####################################################################################################
 y_train_labels = np.argmax(y_train, axis=-1).flatten()
 classes = np.unique(y_train_labels)
 
@@ -110,8 +110,8 @@ tuner.search(
     class_weight=class_weights
 )
 best_model = tuner.get_best_models(num_models=1)[0]
-##################################################################################################################################################
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+####################################################################################################
+PROJECT_ROOT = Path(__file__).resolve().parents[1]/"Telco-challenge"
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
 ENCODERS_PATH = PROJECT_ROOT / "models" / "encoders.pkl"
 FEATURES_PATH = PROJECT_ROOT / "models" / "feature_cols.json"
