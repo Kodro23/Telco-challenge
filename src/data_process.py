@@ -124,9 +124,6 @@ class Preprocessor():
        
         # convert numeric
         merged["Timestamp"] = pd.to_datetime(merged["Timestamp"])
-        # clean merged content
-        print(merged.iloc[0])
-
         return merged
 
 class FeatureBuilder:

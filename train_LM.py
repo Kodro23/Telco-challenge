@@ -45,7 +45,7 @@ for idx, row in df.iterrows():
     except Exception as e:
         print(f"Error on row {idx}: {e}")
 
-# build final dataframe ONCE (important)
+# build final dataframe 
 processed_dataframe = pd.concat(processed_rows, ignore_index=True)
 #Rename columns
 processed_dataframe=processed_dataframe.rename({"Longitude_x": "Longitude", "Latitude_x":"Latitude", "Longitude_y": "cell_Longitude","Latitude_y": "cell_Latitude"},axis="columns")
