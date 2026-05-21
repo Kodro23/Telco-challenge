@@ -28,52 +28,26 @@ for idx, row in df.iterrows():
     try:
         processor = Preprocessor(row["question"])
         merged = processor.build_sequence()
-        builder = FeatureBuilder(
-            merged_df=merged,
-            encoders=categorical_encoders,
-            training=True
-        )
-        sequence=builder.build()
+        merged["ID"] = row["ID"]
+        builder=FeatureBuilder(merged)
 
         # store tabular version
-        processed_rows.append({"ID": row["ID"],"sequence": sequence,"label": row["answer"]})
+        processed_rows.append(merged)
     except Exception as e:
         print(f"Error on row {idx}: {e}")
 
-# build final dataframe 
+# build final dataframe
 processed_dataframe = pd.concat(processed_rows, ignore_index=True)
-#Rename columns
-processed_dataframe=processed_dataframe.rename({"Longitude_x": "Longitude", "Latitude_x":"Latitude", "Longitude_y": "cell_Longitude","Latitude_y": "cell_Latitude"},axis="columns")
-#Sort dataframe
-processed_dataframe=processed_dataframe.drop(columns=["Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 PCI",
-"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 PCI", 
-"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 PCI",
-"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 3 Filtered Tx BRSRP [dBm]",    
-"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 4 Filtered Tx BRSRP [dBm]",    
-"Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"]).sort_values(by=["ID","Timestamp"])
-#Replace missing values by the previous or following value
-ids = processed_dataframe["ID"]
-processed_dataframe = processed_dataframe.groupby("ID").ffill().bfill()
-processed_dataframe["ID"] = ids
 
 #Format data
 processed_data = []
 for telelog_id in processed_dataframe["ID"].unique():
     # get rows for ONE telelog
     sample_df = processed_dataframe[processed_dataframe["ID"] == telelog_id].copy()
-
-    # sort by time
-    sample_df = sample_df.sort_values("Timestamp").drop(columns=["Timestamp"])
-    #encoding 
-    for col in sample_df.columns[sample_df.columns.isin(sample_df.select_dtypes(include=["object", "string"]).columns)]:
-        sample_df = encode_column(sample_df, col)
-
     # sequence = matrix
     sequence = sample_df.values
-
     # get label
     label = df[df["ID"] == telelog_id]["answer"].iloc[0]
-
     processed_data.append({
         "ID": telelog_id,
         "sequence": sequence,

@@ -11,7 +11,7 @@ class Preprocessor():
 
     def __init__(self, question):
 
-        self.question = question
+        self.question = question.replace("：", ":").replace("\u00A0", " ").replace("\r\n", "\n")
 
     def parse_question(self):
         """
@@ -19,9 +19,8 @@ class Preprocessor():
         - drive test dataframe
         - engineering dataframe
         """
-
         # Split sections
-        parts = self.question.split("Engineering parameters data as follows: ")
+        parts = re.split(r"\s*Eng[a-z]*\s+parameters\s+data\s+as\s+follows\s*:\s*",self.question,flags=re.IGNORECASE)
         if len(parts) < 2:
             raise ValueError("Engineering section not found")
 
@@ -166,6 +165,9 @@ class FeatureBuilder:
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"])
 
         # handle missing values
+        ids = df["ID"]
+        df = df.groupby("ID").ffill().bfill()
+        df["ID"] = ids
         df = df.ffill().bfill()
 
         # encode categorical variables
@@ -174,7 +176,7 @@ class FeatureBuilder:
         for col in categorical_cols:
             df = self.encode_column(df, col)
 
-        return df.values.astype("float32")
+        return df
 
         
     
