@@ -139,7 +139,7 @@ def encode_column(df, col, encoders=None, training=False):
 
 
 class FeatureBuilder:
-    def __init__(self, merged_df, encoders=None, training=False):
+    def __init__(self, merged_df):
         self.df = merged_df
 
     def build(self):
@@ -166,8 +166,10 @@ class FeatureBuilder:
                                 "Measurement PCell Neighbor Cell Top Set(Cell Level) Top 5 Filtered Tx BRSRP [dBm]","gNodeB ID","Cell ID"])
 
         # handle missing values
-        ids = df["ID"]
-        df = df.groupby("ID").ffill().bfill()
-        df["ID"] = ids
-        df = df.ffill().bfill()
-        return df
+        if 'ID' in df.columns:
+            ids = df["ID"]
+            df = df.groupby("ID").ffill().bfill()
+            df["ID"] = ids
+            return df
+        else:
+            return df.ffill().bfill()
