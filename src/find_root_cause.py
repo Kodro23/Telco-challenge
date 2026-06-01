@@ -40,9 +40,10 @@ class TelecomPipeline:
         preds = self.model.predict(X)
         pred_class = int(np.argmax(preds))
         label, description = ROOT_CAUSES[pred_class]
+        
 
         return {
             "Class": label,
             "description": description,
-            "probs": preds.tolist()
+            "confidence": float(np.max(preds))
             }
