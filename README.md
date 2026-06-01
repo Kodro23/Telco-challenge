@@ -43,7 +43,7 @@ to
 | 2025-05-07 15:23:55 | 128.188103 | 32.579113 | 14               | 71  | -88.21     | 5.40      | 431.94               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 | 2025-05-07 15:23:56 | 128.188088 | 32.579075 | 19               | 71  | -78.45     | 13.59     | 566.34               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 
-- Since each telelog content contains repeated measures by timestamp, we use a Long Short-Term Memory (LSTM) model to account for the time series structure. We obtain an accuray of 80% and F1-score of 83%.
+- Since each telelog content contains repeated measures by timestamp, we use a **Long Short-Term Memory (LSTM)** model to account for the time series structure. We obtain an **accuracy of 80%** and **F1-score of 83%**.
 
 ### 🧰3. Built with
 Python 3.13.13
