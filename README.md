@@ -12,14 +12,14 @@ Training data is a table including:
 - ID of telelog (2400 in total) 
 - Content of telelog with information on location, mobility, radio signal quality, performane of device
 - Root cause among 8 possibilities:
-C1: The serving cell's downtilt angle is too large, causing weak coverage at the far end.
-C2: The serving cell's coverage distance exceeds 1km, resulting in over-shooting.
-C3: A neighboring cell provides higher throughput.
-C4: Non-colocated co-frequency neighboring cells cause severe overlapping coverage.
-C5: Frequent handovers degrade performance.
-C6: Neighbor cell and serving cell have the same PCI mod 30, leading to interference.
-C7: Test vehicle speed exceeds 40km/h, impacting user throughput.
-C8: Average scheduled RBs are below 160, affecting throughput.
+    C1: The serving cell's downtilt angle is too large, causing weak coverage at the far end.\
+    C2: The serving cell's coverage distance exceeds 1km, resulting in over-shooting.\
+    C3: A neighboring cell provides higher throughput.\
+    C4: Non-colocated co-frequency neighboring cells cause severe overlapping coverage.
+    C5: Frequent handovers degrade performance.\
+    C6: Neighbor cell and serving cell have the same PCI mod 30, leading to interference.\
+    C7: Test vehicle speed exceeds 40km/h, impacting user throughput.\
+    C8: Average scheduled RBs are below 160, affecting throughput.\
 
 ### 2. Method and results
 - Process data by reformating long telelog text content into columns representing characteristics of device. 
