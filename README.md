@@ -26,7 +26,7 @@ Training data is a table including:
 
 Going from raw format
 
-| ID            | Content                                                                                  | root cause     |
+| ID            | Content                                                                                  | Root cause     |
 |---------------|------------------------------------------------------------------------------------------|----------------|
 | ID_1P7PJMPV0R | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
 | ID_8B1D1TUTFA | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C1             |
@@ -43,22 +43,24 @@ to
 | 2025-05-07 15:23:55 | 128.188103 | 32.579113 | 14               | 71  | -88.21     | 5.40      | 431.94               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 | 2025-05-07 15:23:56 | 128.188088 | 32.579075 | 19               | 71  | -78.45     | 13.59     | 566.34               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 
-- Since each telelog content contains repeated measures by timestamp, we use a **Long Short-Term Memory (LSTM)** model to account for the time series structure. We obtain an **accuracy of 80%** and **F1-score of 83%**.
+- Since each telelog content contains repeated measures by timestamp, we use a **Long Short-Term Memory (LSTM) model** to account for the time series structure. We obtain an **accuracy of 80%** and **F1-score of 83%**.
 
 ### 🧰3. Built with
 Python 3.13.13
 
 ### 📈4. Improvements
 Points of improvement:
-- Improve predictive performances (feature engineering,explore other deep learning models,...)
-- More esthetic and user-friendly API
+- Improve predictive performances (feature engineering, explore other deep learning models,...);
+- More esthetic and user-friendly API;
 - Use a large language model (LLM): the original challenge has been thought to use the logs to fine-tune specialised LLMs capable of performing root-cause analysis. The advantage of LLMs are they are less dependent on a dataframe structure, but they are more computationally expensive. Our original plan was to compare both methods (deep learning and LLMs).
-......
 
 <!-- User's guide -->
 ## 📄II. User's guide
-### 🧬1. How to use
+
 - Clone the repository in python environment and go to dir "/Telco-challenge"
+```
+cd /Telco-challenge
+```
 - In terminal:
     - Create vitual envrionment
     ```
@@ -73,8 +75,8 @@ Points of improvement:
     ```
 
 The documentation of the API is accessible via the requests "/docs". 
-- Select "POST/predict",
-- Click "Try out" to make predictions,
-- Paste in in appropriate format (see request.json for template), 
+- Select "POST/predict";
+- Click "Try out" to make predictions;
+- Paste in in appropriate format (see request.json for template);
 - Execute. 
 - Predictions will be output in section "Response".
