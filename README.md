@@ -9,9 +9,9 @@
 
 ### 1. Data
 Training data is a table including:
-* ID of telelog (2400 in total) 
-* Content of telelog with information on location, mobility, radio signal quality, performane of device
-* Root cause among 8 possibilities:
+- ID of telelog (2400 in total) 
+- Content of telelog with information on location, mobility, radio signal quality, performane of device
+- Root cause among 8 possibilities:
 C1: The serving cell's downtilt angle is too large, causing weak coverage at the far end.
 C2: The serving cell's coverage distance exceeds 1km, resulting in over-shooting.
 C3: A neighboring cell provides higher throughput.
@@ -22,8 +22,8 @@ C7: Test vehicle speed exceeds 40km/h, impacting user throughput.
 C8: Average scheduled RBs are below 160, affecting throughput.
 
 ### 2. Method and results
-* Process data by reformating long telelog text content into columns representing characteristics of device. 
-Going from
+- Process data by reformating long telelog text content into columns representing characteristics of device. 
+Going from raw format
 | ID            | Content                                                                                  | root cause     |
 |---------------|------------------------------------------------------------------------------------------|----------------|
 | ID_1P7PJMPV0R | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
@@ -41,32 +41,32 @@ to
 | 2025-05-07 15:23:55 | 128.188103 | 32.579113 | 14               | 71  | -88.21     | 5.40      | 431.94               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 | 2025-05-07 15:23:56 | 128.188088 | 32.579075 | 19               | 71  | -78.45     | 13.59     | 566.34               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 
-* Since each telelog content contains repeated measures by timestamp, we use a long short term memory (LSTM) model to account for the time series structure. We obtain an accuray of 80% and F1-score of 83%.
+- Since each telelog content contains repeated measures by timestamp, we use a long short term memory (LSTM) model to account for the time series structure. We obtain an accuray of 80% and F1-score of 83%.
 
 ### 🧰3. Built with
-* python 3.13.13
+python 3.13.13
 
 ### 📈4. Improvements
 Points of improvement:
-* Improve predictive performances (feature engineering,explore other deep learning models,...)
-* More esthetic and user-friendly API
-* Use a large language model (LLM): the original challenge has been thought to use the logs to fine-tune specialised LLMs capable of performing root-cause analysis. The advantage of LLMs are they are less dependent on dataframe structure and but more computationally expensive. Our original plan was to compare both methods (deep learning and LLMs).
+- Improve predictive performances (feature engineering,explore other deep learning models,...)
+- More esthetic and user-friendly API
+- Use a large language model (LLM): the original challenge has been thought to use the logs to fine-tune specialised LLMs capable of performing root-cause analysis. The advantage of LLMs are they are less dependent on dataframe structure and but more computationally expensive. Our original plan was to compare both methods (deep learning and LLMs).
 ......
 
 <!-- User's guide -->
 ## 📄II. User's guide
 ### 🧬1. How to use
-* Clone the repository in python environment and go to dir "/Telco-challenge"
-* In terminal:
-- Create vitual envrionment
-```
-python -m venv name_of_environment
-source  name_of_environment/bin/activate
-pip install -r requirements.txt
+- Clone the repository in python environment and go to dir "/Telco-challenge"
+- In terminal:
+    - Create vitual envrionment
+    ```
+    python -m venv name_of_environment
+    source  name_of_environment/bin/activate
+    pip install -r requirements.txt
 
-```
-- To run the API use the command :
-```
-uvicorn app.api:app --reload --host "0.0.0.0" --port 8000
-```
-The documentation of the API is accessible via the requests "/docs" there you can click on "POST/predict" then "Try out" to make predictions. Enter you text in appropriate format (see request.json for template) and execute. Predictions will be output in section "Response"
+    ```
+    - To run the API use the command :
+    ```
+    uvicorn app.api:app --reload --host "0.0.0.0" --port 8000
+    ```
+The documentation of the API is accessible via the requests "/docs". There click on "POST/predict", then "Try out" to make predictions. Enter you text in appropriate format (see request.json for template) and execute. Predictions will be output in section "Response".
