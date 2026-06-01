@@ -11,7 +11,7 @@
 Training data is a table including:
 - ID of telelog (2400 logs in total) 
 - Content of telelog with information on location, mobility, radio signal quality, performane of device
-- Root cause among 8 possibilities:
+- Root cause among 8 possibilities:\
     C1: The serving cell's downtilt angle is too large, causing weak coverage at the far end.\
     C2: The serving cell's coverage distance exceeds 1km, resulting in over-shooting.\
     C3: A neighboring cell provides higher throughput.\
@@ -71,7 +71,7 @@ Points of improvement:
     ```
     uvicorn app.api:app --reload --host "0.0.0.0" --port 8000
     ```
-    
+
 The documentation of the API is accessible via the requests "/docs". 
 - Select "POST/predict",
 - Click "Try out" to make predictions,
