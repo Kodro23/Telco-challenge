@@ -4,14 +4,14 @@
 # The AI Telco Troubleshooting Challenge 
 
 <!-- Project presentation -->
-## 👨‍🏫1. Project goal
+## 👨‍🏫1. Project presentation
 [The AI Telco Troubleshooting Challenge by ITU](https://zindi.africa/competitions/the-ai-telco-troubleshooting-challenge) aims to use telelogs, the automatically generated fault and event logs produced by network equipment, to predict root case of network failures. 
 
-### 2. Data
+### 1. Data
 Training data is a table including:
-- ID of telelog (2400 in total) 
-- Content of telelog with information on location, mobility, radio signal quality, performane of device
-- Root cause among 8 possibilities:
+* ID of telelog (2400 in total) 
+* Content of telelog with information on location, mobility, radio signal quality, performane of device
+* Root cause among 8 possibilities:
 C1: The serving cell's downtilt angle is too large, causing weak coverage at the far end.
 C2: The serving cell's coverage distance exceeds 1km, resulting in over-shooting.
 C3: A neighboring cell provides higher throughput.
@@ -21,26 +21,52 @@ C6: Neighbor cell and serving cell have the same PCI mod 30, leading to interfer
 C7: Test vehicle speed exceeds 40km/h, impacting user throughput.
 C8: Average scheduled RBs are below 160, affecting throughput.
 
-### 3. Method
-- Process data by reformating long telelog text content columns with characteristics of device.
-- 
+### 2. Method and results
+* Process data by reformating long telelog text content into columns representing characteristics of device. 
+Going from
+| ID            | Content                                                                                  | root cause     |
+|---------------|------------------------------------------------------------------------------------------|----------------|
+| ID_1P7PJMPV0R | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
+| ID_8B1D1TUTFA | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C1             |
+| ID_IGGXMA9GZH | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
+| ID_D6C9N2X295 | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
+| ID_8JC15PNP3Q | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C5             |
 
+to 
+| Timestamp           | Longitude  | Latitude  | GPS Speed (km/h) | PCI | RSRP (dBm) | SINR (dB) | DL Throughput (Mbps) | Top1 PCI | Top2 PCI | Mechanical Downtilt | Digital Tilt | Beam Scenario | Height | TxRx Mode | Max Tx Power | Antenna Model | ID |
+|--------------------|------------|-----------|------------------|-----|------------|-----------|----------------------|----------|----------|---------------------|--------------|--------------|--------|----------|--------------|---------------|----------------|
+| 2025-05-07 15:23:52 | 128.188169 | 32.579273 | 1                | 712 | -77.00     | 15.93     | 1351.25              | 258      | 71       | 6.0                 | 4.0          | DEFAULT      | 5.0    | 64T64R   | 34.9         | NR AAU 2      | ID_1P7PJMPV0R |
+| 2025-05-07 15:23:53 | 128.188140 | 32.579223 | 2                | 71  | -80.97     | 6.60      | 366.57               | 258      | 712      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
+| 2025-05-07 15:23:54 | 128.188117 | 32.579174 | 16               | 71  | -85.50     | 1.81      | 334.00               | 258      | 712      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
+| 2025-05-07 15:23:55 | 128.188103 | 32.579113 | 14               | 71  | -88.21     | 5.40      | 431.94               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
+| 2025-05-07 15:23:56 | 128.188088 | 32.579075 | 19               | 71  | -78.45     | 13.59     | 566.34               | 712      | 258      | 3.0                 | 10.0         | DEFAULT      | 29.7   | 32T32R   | 34.9         | NR AAU 1      | ID_1P7PJMPV0R |
 
+* Since each telelog content contains repeated measures by timestamp, we use a long short term memory (LSTM) model to account for the time series structure. We obtain an accuray of 80% and F1-score of 83%.
 
-### 📜2. Poem generation 
-We use OpenAI's GPT-2 as base, which is a trained large-scale unsupervised language model, which generates coherent paragraphs of text ([OpenAI's GPT-2 ](https://openai.com/index/better-language-models/)). We use GPT-2 as it is fully open source with no API costs and have low hardware requirements, even though recent versions (GPT-3, GPT-4) are more efficient.
-The model is fine-tuned on poems's dataset. For the generation, the label of the input image is used as the theme of the poem, whether it's a classical english poem or an haiku.
+### 🧰3. Built with
+* python 3.13.13
 
-### ⚠️3. Disclaimer
-The poems are a little wonky.
-
-### 🧰4. Built with
-* python 3.12.9
-
-### 📈5. Improvements
+### 📈4. Improvements
 Points of improvement:
-* Enrich the datasets with more poems, with better filtering of texts on their quality
-* Readjust the parameters for the fine-tuning of gpt2
-* Readjust parameters for the poem generator
-* More esthetic use friendly API
+* Improve predictive performances (feature engineering,explore other deep learning models,...)
+* More esthetic and user-friendly API
+* Use a large language model (LLM): the original challenge has been thought to use the logs to fine-tune specialised LLMs capable of performing root-cause analysis. The advantage of LLMs are they are less dependent on dataframe structure and but more computationally expensive. Our original plan was to compare both methods (deep learning and LLMs).
 ......
+
+<!-- User's guide -->
+## 📄II. User's guide
+### 🧬1. How to use
+* Clone the repository in python environment and go to dir "/Telco-challenge"
+* In terminal:
+- Create vitual envrionment
+```
+python -m venv name_of_environment
+source  name_of_environment/bin/activate
+pip install -r requirements.txt
+
+```
+- To run the API use the command :
+```
+uvicorn app.api:app --reload --host "0.0.0.0" --port 8000
+```
+The documentation of the API is accessible via the requests "/docs" there you can click on "POST/predict" then "Try out" to make predictions. Enter you text in appropriate format (see request.json for template) and execute. Predictions will be output in section "Response"
