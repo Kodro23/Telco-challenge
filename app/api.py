@@ -5,7 +5,10 @@ from pathlib import Path
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-app = FastAPI()
+app = FastAPI(
+    title="FastAPI",
+    root_path="/proxy/8000"
+)
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
 
