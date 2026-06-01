@@ -23,7 +23,9 @@ C8: Average scheduled RBs are below 160, affecting throughput.
 
 ### 2. Method and results
 - Process data by reformating long telelog text content into columns representing characteristics of device. 
+
 Going from raw format
+
 | ID            | Content                                                                                  | root cause     |
 |---------------|------------------------------------------------------------------------------------------|----------------|
 | ID_1P7PJMPV0R | Analyze the 5G wireless network drive-test user plane data and engineering parameters... | C2             |
