@@ -81,8 +81,8 @@ cd /Telco-challenge
     ```
     uvicorn app.api:app --reload --host "0.0.0.0" --port 8000
     ```
-
-The documentation of the API is accessible via the requests "/docs". 
+    
+The documentation of the API is accessible via the requests "http://localhost:8000/docs". 
 - Select "POST/predict";
 - Click "Try out" to make predictions;
 - Paste in in appropriate format (see request.json for template);
