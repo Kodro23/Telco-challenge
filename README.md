@@ -65,11 +65,15 @@ cd /Telco-challenge
     - Create vitual envrionment
     ```
     python -m venv name_of_environment
+    ```
+    ```
     source  name_of_environment/bin/activate
     ```
      or
     ```
     .\telco\Scripts\Activate.ps1
+    ```
+    ```
     pip install -r requirements.txt
 
     ```
