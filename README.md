@@ -71,7 +71,7 @@ cd /Telco-challenge
     ```
      or
     ```
-    .\telco\Scripts\Activate.ps1
+    .\name_of_environment\Scripts\Activate.ps1
     ```
     ```
     pip install -r requirements.txt
