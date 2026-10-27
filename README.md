@@ -6,6 +6,7 @@
 <!-- Project presentation -->
 ## 👨‍🏫1. Project presentation
 [The AI Telco Troubleshooting Challenge by ITU](https://zindi.africa/competitions/the-ai-telco-troubleshooting-challenge) aims to use telelogs, the automatically generated fault and event logs produced by network equipment, to predict root case of network failures. 
+Test it [here](https://telco-challenge-ix98ykag5vx4gm3xnazhrk.streamlit.app/)
 
 ### 1. Data
 Training data is a table including:
