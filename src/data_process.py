@@ -56,6 +56,8 @@ class Preprocessor():
                 drive_df[col],
                 errors="coerce"
             )
+        print("Drive-test columns:", drive_df.columns.tolist())
+        print("First rows:\n", drive_df.head())
         # -------------------------
         # ENGINEERING TABLE
         # -------------------------
