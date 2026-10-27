@@ -48,6 +48,8 @@ class Preprocessor():
             StringIO(drive_text),
             sep="|"
         )
+        print("Drive-test columns:", drive_df.columns.tolist())
+        print("First rows:\n", drive_df.head())
         drive_df.columns = drive_df.columns.str.strip()
         # replace "-" with NaN
         drive_df = drive_df.replace("-", np.nan)
@@ -56,8 +58,7 @@ class Preprocessor():
                 drive_df[col],
                 errors="coerce"
             )
-        print("Drive-test columns:", drive_df.columns.tolist())
-        print("First rows:\n", drive_df.head())
+        
         # -------------------------
         # ENGINEERING TABLE
         # -------------------------
