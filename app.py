@@ -1,43 +1,54 @@
-#Load packages
+
 import streamlit as st
-from src.find_root_cause import TelecomPipeline
 from pathlib import Path
+from src.find_root_cause import TelecomPipeline
 import os
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PROJECT_ROOT / "models" / "telecom_model_ml.keras"
-#Set page configuration
+
 st.set_page_config(
-  page_title="Root cause finder",
-  page_icon="🔦"
+    page_title="Root Cause Finder",
+    page_icon="🔦",
+    layout="centered"
 )
 
-#Set title
-st.title("Root cause finder")
-
-#Set description
+st.title("🔦 Root Cause Finder")
 st.write(
-  "Enter you telelog and find out what is the root cause"
-  "of the network failure"
+    "Analyze telecom logs to identify the likely cause "
+    "of a network failure."
 )
 
-#Get the user's question
-question=st.chat_input("Enter your telelog here...")
+# Input section
+st.subheader("1. Submit a telecom log")
 
-#Check if the user asked a question
-if question:
-  #Display the user's question
-  with st.chat_message("user"):
-    st.write(question)
+question = st.text_area(
+    "Telecom log",
+    placeholder="Paste your telecom log here...",
+    height=250
+)
 
-  #Call the agent
-  with st.spinner("Searching..."):
-    result= TelecomPipeline(model_path=str(MODEL_PATH), question=input.text)
-    
-  #Get the final answer
-  answer=result.predict()
+analyze = st.button(
+    "Analyze log",
+    type="primary",
+    disabled=not question.strip()
+)
 
-  #Display the agent's answer
-  with st.chat_message("The root cause is:"):
-    st.write(answer)
+# Analysis section
+if analyze:
+    with st.spinner("Analyzing the telecom log..."):
+        try:
+            pipeline = TelecomPipeline(
+                model_path=str(MODEL_PATH),
+                question=question
+            )
+            result = pipeline.predict()
+
+            st.subheader("2. Diagnosis results")
+            st.success("Analysis completed")
+            st.write(result)
+
+        except Exception as e:
+            st.error(f"Analysis failed: {e}")
