@@ -1,23 +1,23 @@
 # ML
-matplotlib==3.10.9
-seaborn==0.13.2
-tensorflow==2.21.0
-numpy==2.4.4
-pandas==3.0.2
-scikit-learn==1.8.0
-scipy==1.17.1
-joblib==1.5.3
-keras-tuner==1.4.8
-h5py==3.14.0
+matplotlib>=3.10.9
+seaborn>=0.13.2
+tensorflow>=2.21.0
+numpy>=2.4.4
+pandas>=3.0.2
+scikit-learn>=1.8.0
+scipy>=1.17.1
+joblib>=1.5.3
+keras-tuner>=1.4.8
+h5py>=3.14.0
 
 
 #API
-fastapi==0.136.1
-uvicorn==0.47.0
-pydantic==2.13.4
-requests==2.33.1
+fastapi>=0.136.1
+uvicorn>=0.47.0
+pydantic>=2.13.4
+requests>=2.33.1
 streamlit>=1.65.0
 
 #Config
-python-dotenv==1.2.2
+python-dotenv>=1.2.2
 
