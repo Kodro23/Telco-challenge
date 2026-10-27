@@ -1,5 +1,4 @@
 # Import libraries
-import streamlit as st
 import pandas as pd
 import numpy as np
 import re
@@ -50,9 +49,6 @@ class Preprocessor():
             sep="|"
         )
         drive_df.columns = drive_df.columns.str.strip()
-        st.write("DEBUG — Drive-test columns:", drive_df.columns.tolist())
-        st.write("DEBUG — Drive-test preview:")
-        st.dataframe(drive_df.head())
         # replace "-" with NaN
         drive_df = drive_df.replace("-", np.nan)
         for col in [c for c in drive_df.columns if c != "Timestamp"]:
@@ -60,7 +56,6 @@ class Preprocessor():
                 drive_df[col],
                 errors="coerce"
             )
-        
         # -------------------------
         # ENGINEERING TABLE
         # -------------------------
